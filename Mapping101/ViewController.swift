@@ -35,6 +35,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
 
     @IBAction func addCurrentLocationMarker(_ sender: Any) {
         if let location = locationManager.location {
+            
+            let closeAnnotations = mapView.annotations
+                .map({ CLLocation(latitude: $0.coordinate.latitude, longitude: $0.coordinate.longitude) })
+                .filter({$0.distance(from: location) < 30 })   // filter out all further than 30 meters
+            
+            if closeAnnotations.count > 1 {  // The user's location beacon is an annotation so ignore
+                print("Other locations are too close. Not adding")
+                return
+            }
+            
             let annotation = MKPointAnnotation()
             annotation.coordinate = location.coordinate
             let timeStamp = dateFormatter.string(from: Date())
